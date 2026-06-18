@@ -34,33 +34,35 @@
   }
 
   initProxyForm();
+  initOverviewLinks();
+  if (window.CCO && window.CCO.initPublicSessions) {
+    window.CCO.initPublicSessions();
+  }
 })();
+
+function initOverviewLinks() {
+  document.querySelectorAll(".overview-link[data-issue]").forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      const issue = link.getAttribute("data-issue");
+      const detail = document.querySelector('[data-issue="' + issue + '"].issue-card');
+      if (!detail) return;
+
+      event.preventDefault();
+      detail.open = true;
+      detail.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}
 
 function initProxyForm() {
   const form = document.getElementById("proxy-form-el");
-  const canvas = document.getElementById("signature-pad");
   const printBtn = document.getElementById("print-proxy");
-  const submitBtn = document.getElementById("submit-proxy");
-  const clearBtn = document.getElementById("clear-signature");
   const dateInput = document.getElementById("proxy-date");
   const errorEl = document.getElementById("form-error");
-  const successEl = document.getElementById("form-success");
   const printRoot = document.getElementById("print-root");
-  const submitConfig = window.CCO_SUBMIT || {};
-  const onlineNote = document.getElementById("online-submit-note");
-  const submitHelp = document.getElementById("submit-help");
 
-  if (!form || !canvas || !printBtn) {
+  if (!form || !printBtn) {
     return;
-  }
-
-  if (submitConfig.enabled && submitBtn) {
-    submitBtn.hidden = false;
-    if (onlineNote) onlineNote.hidden = false;
-    if (submitHelp) {
-      submitHelp.textContent =
-        "Submit online for instant delivery, or print/save as PDF to mail or email yourself.";
-    }
   }
 
   if (dateInput) {
@@ -84,109 +86,19 @@ function initProxyForm() {
   if (owner1Input) owner1Input.addEventListener("blur", syncPrintedName);
   if (owner2Input) owner2Input.addEventListener("blur", syncPrintedName);
 
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
-  let hasSignature = false;
-
-  function resizeCanvas() {
-    const ratio = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    const saved = hasSignature ? canvas.toDataURL("image/png") : null;
-    canvas.width = rect.width * ratio;
-    canvas.height = rect.height * ratio;
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    if (saved) {
-      const img = new Image();
-      img.onload = function () {
-        ctx.drawImage(img, 0, 0, rect.width, rect.height);
-      };
-      img.src = saved;
-    }
-  }
-
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
-
-  function getPoint(event) {
-    const rect = canvas.getBoundingClientRect();
-    const source = event.touches ? event.touches[0] : event;
-    return {
-      x: source.clientX - rect.left,
-      y: source.clientY - rect.top,
-    };
-  }
-
-  function startDraw(event) {
-    event.preventDefault();
-    drawing = true;
-    hasSignature = true;
-    const point = getPoint(event);
-    ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-  }
-
-  function draw(event) {
-    if (!drawing) return;
-    event.preventDefault();
-    const point = getPoint(event);
-    ctx.lineTo(point.x, point.y);
-    ctx.stroke();
-  }
-
-  function endDraw() {
-    drawing = false;
-  }
-
-  canvas.addEventListener("mousedown", startDraw);
-  canvas.addEventListener("mousemove", draw);
-  canvas.addEventListener("mouseup", endDraw);
-  canvas.addEventListener("mouseleave", endDraw);
-  canvas.addEventListener("touchstart", startDraw, { passive: false });
-  canvas.addEventListener("touchmove", draw, { passive: false });
-  canvas.addEventListener("touchend", endDraw);
-
-  if (clearBtn) {
-    clearBtn.addEventListener("click", function () {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      hasSignature = false;
-    });
-  }
-
   printBtn.addEventListener("click", function () {
     const data = collectFormData();
     if (!data) return;
 
-    printRoot.innerHTML = buildPrintHtml({
-      ownerLine: data.ownerLine,
-      units: data.units,
-      date: formatDate(data.date),
-      printedName: data.printedName,
-      phone: data.phone,
-      email: data.email,
-      note: data.note,
-      signatureData: data.signatureData,
-    });
+    printRoot.innerHTML = buildPrintHtml(data);
 
     document.body.classList.add("printing-proxy");
     window.print();
     document.body.classList.remove("printing-proxy");
   });
 
-  if (submitBtn) {
-    submitBtn.addEventListener("click", function () {
-      const data = collectFormData();
-      if (data) {
-        submitProxyOnline(submitConfig, data);
-      }
-    });
-  }
-
   function collectFormData() {
-    hideMessages();
+    hideError();
 
     const owner1 = val("owner-name-1");
     const owner2 = val("owner-name-2");
@@ -201,22 +113,18 @@ function initProxyForm() {
     if (!phone) { showError("Please enter your phone number."); return null; }
     if (!email) { showError("Please enter your email address."); return null; }
     if (!date) { showError("Please select the date."); return null; }
-    if (!hasSignature) { showError("Please sign in the signature box."); return null; }
 
     const units = collectUnits();
     if (!units.length) { showError("Please enter at least one unit and week."); return null; }
 
     return {
-      owner1: owner1,
-      owner2: owner2,
       ownerLine: owner2 ? owner1 + " / " + owner2 : owner1,
       printedName: printedName,
       phone: phone,
       email: email,
-      date: date,
+      date: formatDate(date),
       note: note,
       units: units,
-      signatureData: canvas.toDataURL("image/png"),
     };
   }
 
@@ -255,21 +163,10 @@ function initProxyForm() {
     errorEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  function showSuccess(message) {
-    if (!successEl) return;
-    successEl.textContent = message;
-    successEl.hidden = false;
-    successEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-
-  function hideMessages() {
+  function hideError() {
     if (errorEl) {
       errorEl.hidden = true;
       errorEl.textContent = "";
-    }
-    if (successEl) {
-      successEl.hidden = true;
-      successEl.textContent = "";
     }
   }
 
@@ -303,7 +200,7 @@ function initProxyForm() {
         "<p>All prior proxies are hereby revoked. This Proxy shall remain in effect until the earliest of the following events: I revoke it in writing, or attend and vote at any meeting for which this proxy is in effect; twenty-four months after the date I signed this proxy; I am no longer an owner of an Interval Interest, as defined in the Declaration of Covenants, Conditions and Restrictions for Interval Ownership of Causeway on Gull.</p>" +
         '<div class="sig-block">' +
           "<div><strong>Date</strong><br><span class=\"print-line\">" + escapeHtml(data.date) + "</span></div>" +
-          "<div><strong>Signature of Owner(s)</strong><br><img class=\"sig-img\" src=\"" + data.signatureData + "\" alt=\"Signature\"></div>" +
+          "<div><strong>Signature of Owner(s)</strong><br><span class=\"print-line print-line-signature\">&nbsp;</span></div>" +
         "</div>" +
         "<p><strong>Printed Name(s):</strong> <span class=\"print-line\">" + escapeHtml(data.printedName) + "</span></p>" +
         "<p><strong>Phone:</strong> <span class=\"print-line\">" + escapeHtml(data.phone) + "</span> &nbsp;&nbsp; <strong>Email:</strong> <span class=\"print-line\">" + escapeHtml(data.email) + "</span></p>" +
@@ -321,122 +218,4 @@ function initProxyForm() {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
   }
-}
-
-async function submitProxyOnline(config, data) {
-  const form = document.getElementById("proxy-form-el");
-  const submitBtn = document.getElementById("submit-proxy");
-  const errorEl = document.getElementById("form-error");
-  const successEl = document.getElementById("form-success");
-
-  if (!config.enabled || !config.supabaseUrl || !config.supabaseAnonKey) {
-    if (errorEl) {
-      errorEl.textContent = "Online submission is not configured yet. Please print and mail your proxy, or email info@causewayongullowners.com.";
-      errorEl.hidden = false;
-    }
-    return;
-  }
-
-  if (successEl) successEl.hidden = true;
-
-  const submissionId = crypto.randomUUID();
-  const signaturePath = submissionId + ".png";
-  const baseUrl = config.supabaseUrl.replace(/\/$/, "");
-  const headers = {
-    apikey: config.supabaseAnonKey,
-    Authorization: "Bearer " + config.supabaseAnonKey,
-  };
-
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Submitting…";
-  }
-
-  try {
-    const signatureBlob = dataUrlToBlob(data.signatureData);
-    const uploadRes = await fetch(baseUrl + "/storage/v1/object/proxy-signatures/" + signaturePath, {
-      method: "POST",
-      headers: Object.assign({}, headers, { "Content-Type": "image/png", "x-upsert": "false" }),
-      body: signatureBlob,
-    });
-
-    if (!uploadRes.ok) {
-      throw new Error("Could not upload signature. Please try printing instead.");
-    }
-
-    const insertRes = await fetch(baseUrl + "/rest/v1/proxy_submissions", {
-      method: "POST",
-      headers: Object.assign({}, headers, {
-        "Content-Type": "application/json",
-        Prefer: "return=representation",
-      }),
-      body: JSON.stringify({
-        id: submissionId,
-        owner_name_1: data.owner1,
-        owner_name_2: data.owner2 || null,
-        units: data.units,
-        signed_date: data.date,
-        printed_name: data.printedName,
-        phone: data.phone,
-        email: data.email,
-        deed_note: data.note || null,
-        signature_path: signaturePath,
-      }),
-    });
-
-    if (!insertRes.ok) {
-      throw new Error("Could not save proxy. Please print and mail instead.");
-    }
-
-    if (config.notifyFunctionName) {
-      await fetch(baseUrl + "/functions/v1/" + config.notifyFunctionName, {
-        method: "POST",
-        headers: Object.assign({}, headers, { "Content-Type": "application/json" }),
-        body: JSON.stringify({
-          submissionId: submissionId,
-          ownerName1: data.owner1,
-          ownerName2: data.owner2 || null,
-          units: data.units,
-          signedDate: data.date,
-          printedName: data.printedName,
-          phone: data.phone,
-          email: data.email,
-          deedNote: data.note || null,
-          signaturePath: signaturePath,
-        }),
-      }).catch(function () {
-        // DB save succeeded; email notification is best-effort.
-      });
-    }
-
-    if (successEl) {
-      successEl.textContent =
-        "Your proxy was submitted successfully (ID: " + submissionId.slice(0, 8) + "). " +
-        "The Concerned Owners group has been notified. You can still print a copy for your records.";
-      successEl.hidden = false;
-    }
-
-    form?.scrollIntoView({ behavior: "smooth", block: "start" });
-  } catch (err) {
-    if (errorEl) {
-      errorEl.textContent = err.message || "Submission failed. Please print and mail your proxy instead.";
-      errorEl.hidden = false;
-    }
-  } finally {
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Proxy Online";
-    }
-  }
-}
-
-function dataUrlToBlob(dataUrl) {
-  const parts = dataUrl.split(",");
-  const mime = parts[0].match(/:(.*?);/)[1];
-  const binary = atob(parts[1]);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new Blob([bytes], { type: mime });
 }

@@ -1,14 +1,14 @@
-// Site links — update session/volunteer/issue detail URLs as needed.
+// Site links — update volunteer/issue detail URLs as needed.
 window.CCO_LINKS = {
   proxy: "#proxy-form",
   sessions: "#meetings",
   volunteer: "#volunteer",
-  financial: "#issues",
-  violations: "#issues",
-  elections: "#issues",
-  fiduciary: "#issues",
-  sales: "#issues",
-  control: "#issues",
+  financial: "#detail-financial",
+  violations: "#detail-violations",
+  elections: "#detail-elections",
+  fiduciary: "#detail-fiduciary",
+  sales: "#detail-sales",
+  control: "#detail-control",
 };
 
 window.CCO_CONTACT = {
@@ -19,12 +19,12 @@ window.CCO_CONTACT = {
   mailAddress: "PO Box 464, Devils Lake, ND 58301",
 };
 
-// Online proxy submission — set enabled: true after running supabase-setup.sql
-// and deploying the notify-proxy edge function (see supabase/functions/notify-proxy/).
-window.CCO_SUBMIT = {
+// Supabase — required for dynamic Zoom sessions and the admin dashboard (admin.html).
+// 1. Run supabase-setup.sql in your Supabase SQL Editor
+// 2. Enable Email auth in Supabase → Authentication → Providers
+// 3. Create admin users matching emails in the admin_emails table
+window.CCO_SUPABASE = {
   enabled: false,
-  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
-  notifyFunctionName: "notify-proxy",
-  notifyEmail: "info@causewayongullowners.com",
+  url: "https://YOUR_PROJECT.supabase.co",
+  anonKey: "YOUR_SUPABASE_ANON_KEY",
 };

@@ -1,0 +1,180 @@
+.admin-body {
+  background: #0a0a0a;
+  min-height: 100vh;
+}
+
+.admin-header {
+  border-bottom: 2px solid #991111;
+  background: #111;
+  padding: 1rem 0;
+}
+
+.admin-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+
+.admin-main {
+  padding: 2rem 0 4rem;
+}
+
+.admin-panel {
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-panel h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+.admin-login-form {
+  max-width: 420px;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.admin-user {
+  color: #a3a3a3;
+  font-size: 0.9rem;
+}
+
+.session-table-wrap {
+  overflow-x: auto;
+}
+
+.session-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.session-table th,
+.session-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.session-table th {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #facc15;
+}
+
+.session-table td {
+  color: #ececec;
+}
+
+.session-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.session-badge-active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+.session-badge-inactive {
+  background: rgba(255, 255, 255, 0.08);
+  color: #888;
+}
+
+.session-badge-featured {
+  background: rgba(225, 29, 29, 0.2);
+  color: #ff6b6b;
+  margin-left: 0.35rem;
+}
+
+.admin-form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-form-grid-2 {
+  grid-template-columns: 1fr;
+}
+
+.admin-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-danger {
+  background: transparent;
+  color: #ff6b6b;
+  border-color: #991111;
+}
+
+.btn-danger:hover {
+  background: rgba(225, 29, 29, 0.15);
+  color: #ff6b6b;
+}
+
+.admin-note {
+  margin: 0 0 1rem;
+  color: #a3a3a3;
+  font-size: 0.92rem;
+}
+
+.admin-message {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.admin-message-error {
+  background: rgba(225, 29, 29, 0.15);
+  border: 1px solid #e11d1d;
+  color: #ff6b6b;
+}
+
+.admin-message-success {
+  background: rgba(34, 197, 94, 0.12);
+  border: 2px solid #22c55e;
+  color: #86efac;
+}
+
+@media (min-width: 768px) {
+  .admin-form-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}

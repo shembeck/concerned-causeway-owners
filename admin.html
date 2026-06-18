@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin — Concerned Causeway Owners</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div class="container admin-header-inner">
+      <h1>Session Admin</h1>
+      <div class="admin-actions-row">
+        <a class="btn btn-secondary btn-sm" href="index.html">View Site</a>
+        <button class="btn btn-secondary btn-sm" type="button" id="logout-btn" hidden>Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="container">
+      <div id="admin-message" class="admin-message" hidden role="alert"></div>
+
+      <section id="login-panel" class="admin-panel">
+        <h2>Admin Login</h2>
+        <p class="admin-note">Sign in with an authorized admin email to manage Zoom and in-person sessions.</p>
+        <form id="login-form" class="admin-login-form">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required autocomplete="current-password">
+          </div>
+          <button class="btn btn-primary" type="submit">Sign In</button>
+        </form>
+      </section>
+
+      <section id="dashboard-panel" hidden>
+        <div class="admin-panel">
+          <div class="admin-toolbar">
+            <div>
+              <h2>Upcoming Sessions</h2>
+              <p class="admin-user" id="admin-user"></p>
+            </div>
+            <button class="btn btn-primary btn-sm" type="button" id="new-session-btn">Add Session</button>
+          </div>
+          <div class="session-table-wrap">
+            <table class="session-table">
+              <thead>
+                <tr>
+                  <th>When</th>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sessions-table-body">
+                <tr><td colspan="5">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-panel" id="session-form-panel" hidden>
+          <h2 id="session-form-title">Add Session</h2>
+          <form id="session-form" class="admin-form-grid">
+            <input type="hidden" id="session-id">
+
+            <div class="form-group">
+              <label for="session-title">Title</label>
+              <input type="text" id="session-title" required placeholder="Emergency Owner Zoom">
+            </div>
+
+            <div class="form-group">
+              <label for="session-type">Session Type</label>
+              <select id="session-type">
+                <option value="zoom">Zoom</option>
+                <option value="in_person">In-Person</option>
+              </select>
+            </div>
+
+            <div class="admin-form-grid admin-form-grid-2">
+              <div class="form-group">
+                <label for="session-date">Date</label>
+                <input type="date" id="session-date" required>
+              </div>
+              <div class="form-group">
+                <label for="session-time">Time (Central)</label>
+                <input type="time" id="session-time" required>
+              </div>
+            </div>
+
+            <div class="form-group" id="zoom-url-group">
+              <label for="session-zoom-url">Zoom Link</label>
+              <input type="url" id="session-zoom-url" placeholder="https://us02web.zoom.us/j/...">
+            </div>
+
+            <div class="form-group" id="location-group" hidden>
+              <label for="session-location">Location</label>
+              <input type="text" id="session-location" placeholder="Address or venue name">
+            </div>
+
+            <div class="form-group">
+              <label for="session-description">Description</label>
+              <textarea id="session-description" rows="3" placeholder="Brief description for owners"></textarea>
+            </div>
+
+            <div class="admin-form-grid admin-form-grid-2">
+              <label class="radio-label">
+                <input type="checkbox" id="session-featured"> Feature in hero banner
+              </label>
+              <label class="radio-label">
+                <input type="checkbox" id="session-active" checked> Active (visible on site)
+              </label>
+            </div>
+
+            <div class="admin-actions-row">
+              <button class="btn btn-primary" type="submit">Save Session</button>
+              <button class="btn btn-secondary" type="button" id="cancel-session-btn">Cancel</button>
+              <button class="btn btn-danger" type="button" id="delete-session-btn" hidden>Delete</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="lib/supabase-client.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
