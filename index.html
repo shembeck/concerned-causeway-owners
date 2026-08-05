@@ -340,7 +340,7 @@
             </fieldset>
 
             <div class="proxy-sign-note">
-              <strong>After printing:</strong> Sign the proxy with a pen in the signature line provided. We do not accept electronically signed proxies submitted through this website.
+              <strong>After downloading:</strong> Print the PDF and sign with a pen in the signature line provided. We do not accept electronically signed proxies submitted through this website.
             </div>
 
             <div class="proxy-warning-box">
@@ -349,10 +349,11 @@
 
             <div class="form-actions">
               <div class="form-actions-buttons">
-                <button type="button" class="btn btn-primary btn-lg" id="print-proxy">Print Proxy Form</button>
+                <button type="button" class="btn btn-primary btn-lg" id="download-proxy">Download Proxy PDF</button>
+                <button type="button" class="btn btn-secondary" id="print-proxy">Print instead</button>
               </div>
               <p class="form-actions-help" id="submit-help">
-                Print the form, sign with a pen, then mail or email a scanned copy using the instructions below.
+                Download the official proxy PDF, print it, sign with a pen, then mail or email a scanned copy using the instructions below.
               </p>
             </div>
             <p class="form-error" id="form-error" role="alert" hidden></p>
@@ -548,6 +549,9 @@
           <p class="section-lead">
             Register to attend an upcoming Zoom or in-person session to hear more, ask your questions, and connect with fellow owners.
           </p>
+          <p class="section-lead">
+            <a class="issue-link" href="#" data-link="sessions">Read more: Owner info sessions</a>
+          </p>
         </header>
         <div class="meeting-grid" id="meeting-grid">
           <article class="meeting-card">
@@ -628,9 +632,11 @@
   <div id="print-root" class="print-root" hidden aria-hidden="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="config.js"></script>
   <script src="lib/supabase-client.js"></script>
   <script src="lib/sessions.js"></script>
+  <script src="lib/proxy-pdf.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

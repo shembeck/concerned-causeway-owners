@@ -1407,6 +1407,29 @@ a {
     padding: 0 0.05in 0.02in;
   }
 
+  .print-doc .print-line-sm {
+    min-width: 0.45in;
+  }
+
+  .print-doc .print-units {
+    font-size: 10pt;
+    margin: 0.08in 0 0.15in;
+  }
+
+  .print-doc .print-proxy-chain {
+    text-align: center;
+    margin: 0.12in 0;
+    line-height: 1.35;
+  }
+
+  .print-doc .print-circled {
+    display: inline-block;
+    border: 1.5px solid #000;
+    border-radius: 999px;
+    padding: 0 0.08in;
+    line-height: 1.2;
+  }
+
   .print-doc .units-table {
     width: 100%;
     border-collapse: collapse;

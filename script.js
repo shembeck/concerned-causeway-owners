@@ -3,8 +3,12 @@
 
   document.querySelectorAll("[data-link]").forEach(function (el) {
     const key = el.getAttribute("data-link");
-    if (links[key]) {
-      el.setAttribute("href", links[key]);
+    const href = links[key];
+    if (!href) return;
+    el.setAttribute("href", href);
+    if (/^https?:\/\//i.test(href)) {
+      el.setAttribute("target", "_blank");
+      el.setAttribute("rel", "noopener noreferrer");
     }
   });
 
@@ -56,12 +60,13 @@ function initOverviewLinks() {
 
 function initProxyForm() {
   const form = document.getElementById("proxy-form-el");
+  const downloadBtn = document.getElementById("download-proxy");
   const printBtn = document.getElementById("print-proxy");
   const dateInput = document.getElementById("proxy-date");
   const errorEl = document.getElementById("form-error");
   const printRoot = document.getElementById("print-root");
 
-  if (!form || !printBtn) {
+  if (!form || (!downloadBtn && !printBtn)) {
     return;
   }
 
@@ -86,16 +91,41 @@ function initProxyForm() {
   if (owner1Input) owner1Input.addEventListener("blur", syncPrintedName);
   if (owner2Input) owner2Input.addEventListener("blur", syncPrintedName);
 
-  printBtn.addEventListener("click", function () {
-    const data = collectFormData();
-    if (!data) return;
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", async function () {
+      const data = collectFormData();
+      if (!data) return;
 
-    printRoot.innerHTML = buildPrintHtml(data);
+      downloadBtn.disabled = true;
+      const originalLabel = downloadBtn.textContent;
+      downloadBtn.textContent = "Preparing PDF…";
 
-    document.body.classList.add("printing-proxy");
-    window.print();
-    document.body.classList.remove("printing-proxy");
-  });
+      try {
+        if (!window.CCO || !window.CCO.downloadProxyPdf) {
+          throw new Error("PDF generator is not available. Please refresh and try again.");
+        }
+        await window.CCO.downloadProxyPdf(data);
+      } catch (err) {
+        showError(err.message || "Could not generate the proxy PDF.");
+      } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = originalLabel;
+      }
+    });
+  }
+
+  if (printBtn) {
+    printBtn.addEventListener("click", function () {
+      const data = collectFormData();
+      if (!data) return;
+
+      printRoot.innerHTML = buildPrintHtml(data);
+
+      document.body.classList.add("printing-proxy");
+      window.print();
+      document.body.classList.remove("printing-proxy");
+    });
+  }
 
   function collectFormData() {
     hideError();
@@ -118,6 +148,8 @@ function initProxyForm() {
     if (!units.length) { showError("Please enter at least one unit and week."); return null; }
 
     return {
+      owner1: owner1,
+      owner2: owner2,
       ownerLine: owner2 ? owner1 + " / " + owner2 : owner1,
       printedName: printedName,
       phone: phone,
@@ -171,12 +203,18 @@ function initProxyForm() {
   }
 
   function buildPrintHtml(data) {
-    const unitRows = data.units.map(function (u) {
+    const ownerBlank =
+      '<span class="print-line">' + escapeHtml(data.owner1 || "") + "</span>/" +
+      '<span class="print-line">' + escapeHtml(data.owner2 || "") + "</span>";
+
+    const unitSlots = [0, 1, 2, 3].map(function (i) {
+      const u = data.units[i] || { unit: "", week: "", schedule: "" };
       return (
-        "<tr><td>Unit " + escapeHtml(u.unit) + ", Week " + escapeHtml(u.week) + ", " +
-        escapeHtml(u.schedule) + "</td></tr>"
+        "Unit <span class=\"print-line print-line-sm\">" + escapeHtml(u.unit || "") + "</span>, " +
+        "week<span class=\"print-line print-line-sm\">" + escapeHtml(u.week || "") + "</span> " +
+        scheduleMark(u.schedule)
       );
-    }).join("");
+    });
 
     const noteBlock = data.note
       ? "<p><strong>Note:</strong> " + escapeHtml(data.note) + "</p>"
@@ -187,28 +225,50 @@ function initProxyForm() {
         "<h1>PROXY</h1>" +
         '<p class="print-sub"><strong>CAUSEWAY ON GULL ASSOCIATION, INC.</strong> (&ldquo;Association&rdquo;)</p>' +
         '<p class="print-note">NOTE: Name and signature of only one owner is required. Additional owners&rsquo; signatures are optional.</p>' +
-        "<p>I, <span class=\"print-line\">" + escapeHtml(data.ownerLine) + "</span>, owner(s) of:</p>" +
-        '<table class="units-table"><tbody>' + unitRows + "</tbody></table>" +
+        "<p>I, " + ownerBlank + ", owner(s) of:</p>" +
+        '<p class="print-units">' + unitSlots[0] + " **** " + unitSlots[1] + "<br>" +
+          unitSlots[2] + " **** " + unitSlots[3] + "</p>" +
         "<p>being a Member of the Association, under the provisions of Article II, Section 7 of the Association&rsquo;s By-laws, do hereby grant my/our proxy, with full power of substitution, to the following, to represent me/us and to exercise all powers to vote and act on my/our behalf at any regular or special meeting of the Members of the Association:</p>" +
+        '<p class="print-proxy-chain">' +
+          "<strong>BRENN FROMM</strong> of CORCORAN, MN<br>" +
+          "Or, in her Absence, to<br>" +
+          "<strong>JIM SMITH</strong> of EAST BETHEL, MN<br>" +
+          "Or, in his Absence, to<br>" +
+          "<strong>AMANDA KUJALA</strong> of HIBBING, MN<br>" +
+          "Or, in her Absence, to<br>" +
+          "<strong>RANDY WASKUL</strong> of DALTON, GA<br>" +
+          "Or, in his Absence, to<br>" +
+          "<strong>SUE BRENNAN</strong> of MINNEAPOLIS, MN" +
+        "</p>" +
+        "<p>All prior proxies are hereby revoked. This Proxy shall remain in effect until the earliest of the following events:</p>" +
         "<ol>" +
-          "<li><strong>BRENN FROMM</strong> of CORCORAN, MN</li>" +
-          "<li>Or, in her Absence, to <strong>JIM SMITH</strong> of EAST BETHEL, MN</li>" +
-          "<li>Or, in his Absence, to <strong>AMANDA KUJALA</strong> of HIBBING, MN</li>" +
-          "<li>Or, in her Absence, to <strong>RANDY WASKUL</strong> of DALTON, GA</li>" +
-          "<li>Or, in his Absence, to <strong>SUE BRENNAN</strong> of MINNEAPOLIS, MN</li>" +
+          "<li>I revoke it in writing, or attend and vote at any meeting for which this proxy is in effect;</li>" +
+          "<li>Twenty-four months after the date I signed this proxy;</li>" +
+          "<li>I am no longer an owner of an Interval Interest, as defined in the Declaration of Covenants, Conditions and Restrictions for Interval Ownership of Causeway on Gull.</li>" +
         "</ol>" +
-        "<p>All prior proxies are hereby revoked. This Proxy shall remain in effect until the earliest of the following events: I revoke it in writing, or attend and vote at any meeting for which this proxy is in effect; twenty-four months after the date I signed this proxy; I am no longer an owner of an Interval Interest, as defined in the Declaration of Covenants, Conditions and Restrictions for Interval Ownership of Causeway on Gull.</p>" +
         '<div class="sig-block">' +
-          "<div><strong>Date</strong><br><span class=\"print-line\">" + escapeHtml(data.date) + "</span></div>" +
-          "<div><strong>Signature of Owner(s)</strong><br><span class=\"print-line print-line-signature\">&nbsp;</span></div>" +
+          "<div><span class=\"print-line\">" + escapeHtml(data.date) + "</span><br>(Date)</div>" +
+          '<div><span class="print-line print-line-signature">&nbsp;</span><br>(Signature of Owner(s))</div>' +
         "</div>" +
-        "<p><strong>Printed Name(s):</strong> <span class=\"print-line\">" + escapeHtml(data.printedName) + "</span></p>" +
-        "<p><strong>Phone:</strong> <span class=\"print-line\">" + escapeHtml(data.phone) + "</span> &nbsp;&nbsp; <strong>Email:</strong> <span class=\"print-line\">" + escapeHtml(data.email) + "</span></p>" +
+        "<p><span class=\"print-line\">" + escapeHtml(data.printedName) + "</span><br>Printed Name(s)</p>" +
+        '<p class="print-warn">PLEASE DO NOT SIGN ANY OTHER PROXIES YOU MAY RECEIVE (IE FROM THE BOARD OR CAPITAL VACATIONS) ONCE YOU SUBMIT THIS ONE TO YOUR FELLOW OWNERS AT THE ADDRESS LISTED BELOW.</p>' +
+        "<p>** If the owner name(s) on your deed are outdated or not consistent with your maintenance fee invoice was addressed to you, please include a note with your proxy, and separately, please contact Causeway on Gull at 218-963-3675 to make those updates.</p>" +
         noteBlock +
-        '<p class="print-warn">PLEASE DO NOT SIGN ANY OTHER PROXIES YOU MAY RECEIVE (I.E. FROM THE BOARD OR CAPITAL VACATIONS) ONCE YOU SUBMIT THIS ONE TO YOUR FELLOW OWNERS.</p>' +
-        '<p class="print-footer">Mail this proxy to: Elaine Dosch, PO Box 464, Devils Lake ND 58301 — or scan and email to info@causewayongullowners.com</p>' +
+        "<p>Mail this proxy, and any donation you&rsquo;d like to make toward the cost of the Concerned Causeway Owners&rsquo; mailings and other expenses incurred as we advocate for fellow owners, as soon as possible to:<br>Elaine Dosch, PO Box 464, Devils Lake ND 58301</p>" +
+        "<p>Or scan and email this signed form and your contact info to: info@causewayongullowners.com</p>" +
+        "<p>Questions, contact Jim Smith at 612-221-2028 or Brenn Fromm at 763.245.9829 (call or text, preference for text if possible)</p>" +
+        "<p>Phone # <span class=\"print-line\">" + escapeHtml(data.phone) + "</span> &nbsp;&nbsp; Email Address: <span class=\"print-line\">" + escapeHtml(data.email) + "</span></p>" +
       "</div>"
     );
+  }
+
+  function scheduleMark(schedule) {
+    return ["Annual", "Even", "Odd"].map(function (opt) {
+      if (schedule === opt) {
+        return '<span class="print-circled">' + opt + "</span>";
+      }
+      return opt;
+    }).join(", ") + " (circle one)";
   }
 
   function escapeHtml(text) {
