@@ -219,6 +219,8 @@ a {
   font-size: 0.88rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav a:hover {
@@ -1602,7 +1604,8 @@ a {
 }
 
 .issue-link {
-  display: inline-block;
+  display: block;
+  width: fit-content;
   margin-top: 1rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1616,10 +1619,58 @@ a {
   color: var(--color-yellow);
 }
 
+/* ── Court order ── */
+.court-order {
+  background: var(--color-black);
+  border-top: 1px solid var(--color-border);
+  scroll-margin-top: 1.25rem;
+}
+
+.court-order .eyebrow {
+  color: var(--color-yellow);
+}
+
+.order-grid {
+  margin-bottom: 1.5rem;
+}
+
+.order-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--color-text-muted);
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.order-card li + li {
+  margin-top: 0.5rem;
+}
+
+.order-footnote {
+  max-width: 48rem;
+  margin: 0 0 1.75rem;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 /* ── Meetings ── */
 .meetings {
   background: var(--color-black-soft);
   border-top: 1px solid var(--color-border);
+  scroll-margin-top: 1.25rem;
+}
+
+.meetings-cta {
+  display: flex;
+  justify-content: center;
 }
 
 .meeting-grid {
@@ -1628,6 +1679,8 @@ a {
 }
 
 .meeting-card {
+  display: flex;
+  flex-direction: column;
   padding: 1.5rem;
   border-radius: var(--radius);
   border: 1px solid var(--color-border);
@@ -1635,9 +1688,22 @@ a {
 }
 
 .meeting-card.featured {
+  grid-column: 1 / -1;
   background: rgba(225, 29, 29, 0.1);
   border: 2px solid var(--color-red);
   box-shadow: var(--shadow-glow);
+}
+
+.meetings-note {
+  max-width: 48rem;
+  margin: 1.5rem 0 0;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.meetings-note a {
+  font-weight: 700;
 }
 
 .meeting-date {
@@ -1650,8 +1716,13 @@ a {
   color: var(--color-red-bright);
 }
 
+.meeting-card .btn {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
 .meeting-card h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 1rem;
   font-family: var(--font-display);
   font-size: 1.3rem;
   font-weight: 700;
@@ -1839,6 +1910,21 @@ a {
 }
 
 /* ── Responsive ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .nav {
+    gap: 0.65rem;
+  }
+
+  .nav a {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+
+  .nav .btn-sm {
+    padding: 0.5rem 0.7rem;
+  }
+}
+
 @media (min-width: 768px) {
   .nav {
     display: flex;

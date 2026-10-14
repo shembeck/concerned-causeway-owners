@@ -1,7 +1,7 @@
 // Site links — update volunteer/issue detail URLs as needed.
 window.CCO_LINKS = {
   proxy: "#proxy-form",
-  sessions: "https://docs.google.com/document/d/16msufxa87E0gazGYkAzFbg-4k5N8SvLrujSjmxARdig/edit?usp=sharing",
+  sessions: "#meetings",
   volunteer: "https://docs.google.com/document/d/1jjrb9VZBicKhcH3z63mejIqzyjeFrNXy/edit?usp=sharing&ouid=114265533061361391314&rtpof=true&sd=true",
   financial: "https://docs.google.com/document/d/15BL4uhuqZUAvfqfGCKbwsMI9uQRjGjvvYKo3JNGMzME/edit?tab=t.0",
   violations: "https://docs.google.com/document/d/1j9TRVjUN2VXNo5gAJrE4quTUkOBbXQU-/edit",
