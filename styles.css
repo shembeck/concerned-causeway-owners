@@ -436,6 +436,9 @@ a {
 }
 
 .sidebar-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin: 0 0 0.35rem;
   font-family: var(--font-display);
   font-size: 0.75rem;
@@ -580,6 +583,7 @@ a {
 }
 
 .live-dot {
+  display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -1661,6 +1665,85 @@ a {
   gap: 0.75rem;
 }
 
+/* ── Annual meeting ── */
+.annual-meeting {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+  background: var(--color-black-soft);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  scroll-margin-top: 5rem;
+}
+
+.annual-meeting .section-header {
+  margin-bottom: 1.5rem;
+}
+
+.annual-meeting .section-lead strong {
+  color: var(--color-white);
+}
+
+.annual-meeting-card {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  background: rgba(225, 29, 29, 0.1);
+  border: 2px solid var(--color-red);
+  box-shadow: var(--shadow-glow);
+}
+
+.annual-meeting-join {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.annual-meeting-note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.annual-meeting-details {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.annual-meeting-details div {
+  margin: 0;
+}
+
+.annual-meeting-details dt {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-yellow);
+}
+
+.annual-meeting-details dd {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-white);
+  letter-spacing: 0.02em;
+}
+
+.annual-meeting-details dd a {
+  display: block;
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+.annual-meeting-details dd a:hover {
+  color: var(--color-yellow);
+}
+
 /* ── Meetings ── */
 .meetings {
   background: var(--color-black-soft);
@@ -1994,6 +2077,12 @@ a {
   .issue-body {
     padding-left: 5.25rem;
     padding-right: 2rem;
+  }
+
+  .annual-meeting-card {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 2rem;
   }
 
   .meeting-grid {
