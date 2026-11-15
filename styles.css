@@ -1761,6 +1761,10 @@ a {
   gap: 1rem;
 }
 
+.meeting-card[hidden] {
+  display: none;
+}
+
 .meeting-card {
   display: flex;
   flex-direction: column;
